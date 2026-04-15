@@ -1,0 +1,170 @@
+import groovy.json.JsonSlurper
+import org.apache.tools.ant.taskdefs.condition.Os
+
+def hasFoundryPluginConfiguration =
+        rootProject.hasProperty("artifactsApiUri") &&
+        rootProject.hasProperty("bearerToken") &&
+        rootProject.hasProperty("functionsPythonVersion")
+
+if (hasFoundryPluginConfiguration) {
+    apply plugin: "com.palantir.functions.python"
+
+    def isWindows = Os.isFamily(Os.FAMILY_WINDOWS)
+
+    if (isWindows) {
+        def runtimeVersionProvider = providers.gradleProperty("functionsPythonRuntimeVersion")
+        def artifactsApiUriProvider = providers.gradleProperty("artifactsApiUri")
+        def repoRidProvider = providers.gradleProperty("repoRid")
+                .orElse(providers.gradleProperty("repositoryRid"))
+        def bearerTokenProvider = providers.gradleProperty("bearerToken")
+        def runtimeBundlesDirProvider = layout.buildDirectory.dir("dev-server/runtime-bundles")
+        def runtimePointerFileProvider = layout.buildDirectory.file("dev-server/runtime/current-path.txt")
+
+        def installRuntimeWindowsWorkaround = tasks.register("installRuntimeWindowsWorkaround") {
+            inputs.property("functionsPythonRuntimeVersion", runtimeVersionProvider)
+            inputs.property("artifactsApiUri", artifactsApiUriProvider)
+            inputs.property("repoRid", repoRidProvider)
+            outputs.dir(runtimeBundlesDirProvider)
+            outputs.file(runtimePointerFileProvider)
+
+            doLast {
+                def runtimeVersion = runtimeVersionProvider.get()
+                def artifactsApiUri = artifactsApiUriProvider.get()
+                def repoRid = repoRidProvider.get()
+                def bearerToken = bearerTokenProvider.get()
+                def runtimeBundlesDir = runtimeBundlesDirProvider.get().asFile
+                def runtimePointerFile = runtimePointerFileProvider.get().asFile
+                def runtimeDir = new File(runtimeBundlesDir, runtimeVersion)
+                def runtimeVersionFile = new File(runtimeDir, ".runtime-version")
+                def runtimeExe = new File(runtimeDir, "asset/bin/windows-x86_64/functions-python-preview-runtime.exe")
+                def runtimeMetadataFile = new File(runtimeDir, "var/conf/metadata.yml")
+                def archiveFile = temporaryDir.toPath()
+                        .resolve("functions-python-runtime-bundle-${runtimeVersion}.sls.tgz")
+                        .toFile()
+                def artifactPath = "com/palantir/functions/python/runtime/functions-python-runtime-bundle/${runtimeVersion}/functions-python-runtime-bundle-${runtimeVersion}.sls.tgz"
+                        .replace("/", "%2F")
+                def artifactUrl = "${artifactsApiUri}/repositories/${repoRid}/contents/release/maven/${artifactPath}"
+
+                logger.lifecycle("Installing Functions Python runtime with Windows workaround")
+
+                def hasReusableRuntime = runtimeExe.exists() && runtimeMetadataFile.exists()
+
+                if (hasReusableRuntime && runtimeVersionFile.exists() && runtimeVersionFile.text.trim() == runtimeVersion) {
+                    logger.lifecycle("Reusing existing Functions Python runtime ${runtimeVersion}")
+                    runtimePointerFile.parentFile.mkdirs()
+                    runtimePointerFile.text = "${runtimeDir.absolutePath}\n"
+                    return
+                }
+
+                if (runtimeDir.exists()) {
+                    runtimeDir = new File(runtimeBundlesDir, "${runtimeVersion}-${System.currentTimeMillis()}")
+                    runtimeVersionFile = new File(runtimeDir, ".runtime-version")
+                    runtimeExe = new File(runtimeDir, "asset/bin/windows-x86_64/functions-python-preview-runtime.exe")
+                    runtimeMetadataFile = new File(runtimeDir, "var/conf/metadata.yml")
+                }
+
+                runtimeDir.mkdirs()
+
+                def connection = new URL(artifactUrl).openConnection()
+                connection.setRequestProperty("Authorization", "Bearer ${bearerToken}")
+                connection.setRequestProperty("Accept", "*/*")
+                connection.connectTimeout = 30000
+                connection.readTimeout = 300000
+
+                archiveFile.withOutputStream { output ->
+                    connection.inputStream.withCloseable { input ->
+                        input.transferTo(output)
+                    }
+                }
+
+                project.exec {
+                    commandLine "tar", "-xzf", archiveFile.absolutePath, "-C", runtimeDir.absolutePath, "--strip-components", "1"
+                }
+
+                project.copy {
+                    from new File(runtimeDir, "asset/bin")
+                    into new File(runtimeDir, "service/bin")
+                }
+
+                runtimeVersionFile.text = "${runtimeVersion}\n"
+                runtimePointerFile.parentFile.mkdirs()
+                runtimePointerFile.text = "${runtimeDir.absolutePath}\n"
+            }
+        }
+
+        tasks.named("installRuntime") {
+            dependsOn(installRuntimeWindowsWorkaround)
+            onlyIf { false }
+        }
+
+        tasks.named("startDevServer") { task ->
+            task.getCommand().set(project.provider {
+                def runtimePointerFile = runtimePointerFileProvider.get().asFile
+                def runtimeBase = runtimePointerFile.exists()
+                        ? new File(runtimePointerFile.text.trim())
+                        : task.getRuntimeBasePath().get().asFile
+                def runtimeExe = new File(
+                        runtimeBase,
+                        "asset/bin/windows-x86_64/functions-python-preview-runtime.exe")
+
+                [
+                        runtimeExe.absolutePath,
+                        "--port",
+                        task.getPort().get(),
+                        "--context-path",
+                        "functions-python-runtime",
+                        "--runtime-metadata-path",
+                        new File(runtimeBase, "var/conf/metadata.yml").absolutePath
+                ]
+            })
+
+            task.getEnvironment().set(project.provider {
+                def pythonEnv = task.getCondaEnvironmentPath().get().asFile
+                def environment = new LinkedHashMap<String, String>()
+                def pathEntries = [
+                        new File(pythonEnv, "Scripts").absolutePath,
+                        new File(pythonEnv, "Library/bin").absolutePath,
+                        pythonEnv.absolutePath,
+                        System.getenv("PATH")
+                ].findAll { it }
+
+                environment["PATH"] = pathEntries.join(File.pathSeparator)
+                environment["PYTHONHOME"] = pythonEnv.absolutePath
+                environment["PYTHONPATH"] = task.getPythonSourcePath().get()
+                environment["PYTHON_PROJECT_DIRECTORY"] = task.getPythonProjectPath().get()
+                environment["PYTHON_SOURCE_DIRECTORY"] = task.getPythonSourcePath().get()
+                environment["POD_KEY_PEM_PATH"] = task.getKeyFile().get().asFile.absolutePath
+                environment["POD_CERT_PEM_PATH"] = task.getCertFile().get().asFile.absolutePath
+
+                if (task.getResourcesJsonFile().isPresent() && task.getResourcesJsonFile().get().asFile.exists()) {
+                    environment["RESOURCES_JSON_FILE"] = task.getResourcesJsonFile().get().asFile.absolutePath
+                }
+
+                if (task.getFoundryHostname().isPresent()) {
+                    environment["FOUNDRY_PYTHON_OSDK_HOSTNAME"] = task.getFoundryHostname().get()
+                    environment["FUNCTIONS_PYTHON_RUNTIME_FOUNDRY_HOSTNAME"] = task.getFoundryHostname().get()
+                }
+
+                if (task.getAdditionalEnvVarsJson().isPresent()) {
+                    try {
+                        def additional = new JsonSlurper().parseText(task.getAdditionalEnvVarsJson().get())
+                        additional.each { key, value ->
+                            environment[key.toString()] = value.toString()
+                        }
+                    } catch (Exception ignored) {
+                        logger.warn("Failed to parse additionalEnvVarsJson for Windows preview startup, skipping it")
+                    }
+                }
+
+                def requestsCaBundle = System.getenv("REQUESTS_CA_BUNDLE")
+                if (requestsCaBundle) {
+                    environment["REQUESTS_CA_BUNDLE"] = requestsCaBundle
+                }
+
+                environment
+            })
+        }
+    }
+} else {
+    logger.lifecycle("Skipping Palantir functions plugin configuration because authenticated properties are unavailable")
+}

@@ -1,0 +1,52 @@
+buildscript {
+    def hasFoundryBuildscriptConfiguration =
+            project.hasProperty("artifactsApiUri") &&
+            project.hasProperty("bearerToken") &&
+            project.hasProperty("repositoryRid") &&
+            project.hasProperty("functionsPythonVersion")
+
+    if (hasFoundryBuildscriptConfiguration) {
+        repositories {
+            maven {
+                credentials {
+                    username ''
+                    password bearerToken
+                }
+                authentication {
+                    basic(BasicAuthentication)
+                }
+                url "${project.artifactsApiUri}/repositories/${repositoryRid}/contents/release/maven"
+            }
+        }
+
+        dependencies {
+            classpath "com.palantir.functions:functions-python-gradle-plugins:${functionsPythonVersion}"
+        }
+    } else {
+        logger.lifecycle("Skipping Foundry buildscript repositories because authenticated properties are unavailable")
+    }
+}
+
+def hasFoundryBuildscriptConfiguration =
+        hasProperty("artifactsApiUri") &&
+        hasProperty("bearerToken") &&
+        hasProperty("repositoryRid")
+
+if (hasFoundryBuildscriptConfiguration) {
+    allprojects {
+        repositories {
+            maven {
+                credentials {
+                    username ''
+                    password bearerToken
+                }
+                authentication {
+                    basic(BasicAuthentication)
+                }
+                url "${project.artifactsApiUri}/repositories/${repositoryRid}/contents/release/maven"
+            }
+        }
+    }
+} else {
+    logger.lifecycle("Skipping Foundry project repositories because authenticated properties are unavailable")
+}

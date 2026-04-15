@@ -1,0 +1,18 @@
+{
+  "resources": {
+    "ontologies" : [ ],
+    "objects" : [ ],
+    "links" : [ ],
+    "interfaces" : [ ],
+    "valueTypes" : [ ],
+    "queries" : [ ],
+    "osdks" : [ ],
+    "models" : [ ],
+    "custom" : { }
+  },
+  "egress": {
+    "connections": [ ]
+  },
+  "_comment": "DO NOT DELETE THIS FILE. MODIFYING CONTENTS MANUALLY MAY RESULT IN COMPILE ERRORS",
+  "version": 1
+}
