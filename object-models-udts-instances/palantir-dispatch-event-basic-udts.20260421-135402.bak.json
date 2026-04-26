@@ -1,0 +1,300 @@
+{
+  "name": "_types_",
+  "tagType": "Folder",
+  "tags": [
+    {
+      "name": "VoltaGrid Ontology",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "Dispatch",
+          "tagType": "Folder",
+          "tags": [
+            {
+              "name": "DispatchEvent_Basic_1_0_0",
+              "tagType": "UdtType",
+              "tags": [
+                {
+                  "name": "Definition",
+                  "tagType": "Folder",
+                  "tags": [
+                    {
+                      "dataType": "String",
+                      "defaultValue": "DispatchEvent",
+                      "name": "ObjectTypeApiName",
+                      "tagType": "AtomicTag",
+                      "value": "DispatchEvent",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "Dispatch Event",
+                      "name": "ObjectTypeDisplayName",
+                      "tagType": "AtomicTag",
+                      "value": "Dispatch Event",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "dispatchEventId",
+                      "name": "PrimaryKeyProperty",
+                      "tagType": "AtomicTag",
+                      "value": "dispatchEventId",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "VoltaGrid Ontology",
+                      "name": "SourceOntology",
+                      "tagType": "AtomicTag",
+                      "value": "VoltaGrid Ontology",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "voltagrid.palantirfoundry.com",
+                      "name": "Hostname",
+                      "tagType": "AtomicTag",
+                      "value": "voltagrid.palantirfoundry.com",
+                      "valueSource": "memory"
+                    }
+                  ]
+                },
+                {
+                  "name": "Identity",
+                  "tagType": "Folder",
+                  "tags": [
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "dispatchEventId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "dispatchName",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "dispatchGroupId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    }
+                  ]
+                },
+                {
+                  "name": "Assignment",
+                  "tagType": "Folder",
+                  "tags": [
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "fleetId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "secondaryFleetId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "driverId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "truckId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "fullTrailerId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "emptyTrailerId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "transferTrailerId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    }
+                  ]
+                },
+                {
+                  "name": "Routing",
+                  "tagType": "Folder",
+                  "tags": [
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "routeId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "compressorId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "destinationCompressorId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "secondaryProjectId",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "prsPost",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "prsTag",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "String",
+                      "defaultValue": "",
+                      "name": "liveTrackingLink",
+                      "tagType": "AtomicTag",
+                      "value": "",
+                      "valueSource": "memory"
+                    }
+                  ]
+                },
+                {
+                  "name": "Schedule",
+                  "tagType": "Folder",
+                  "tags": [
+                    {
+                      "dataType": "DateTime",
+                      "name": "routeCreationTime",
+                      "tagType": "AtomicTag",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "DateTime",
+                      "name": "creationTimestamp",
+                      "tagType": "AtomicTag",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "DateTime",
+                      "name": "scheduledDeparture",
+                      "tagType": "AtomicTag",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "DateTime",
+                      "name": "scheduledEnd",
+                      "tagType": "AtomicTag",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "DateTime",
+                      "name": "acceptedAt",
+                      "tagType": "AtomicTag",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "DateTime",
+                      "name": "fleetArrivalEta",
+                      "tagType": "AtomicTag",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "DateTime",
+                      "name": "autoConfirmTime",
+                      "tagType": "AtomicTag",
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "DateTime",
+                      "name": "closureTimestamp",
+                      "tagType": "AtomicTag",
+                      "valueSource": "memory"
+                    }
+                  ]
+                },
+                {
+                  "name": "State",
+                  "tagType": "Folder",
+                  "tags": [
+                    {
+                      "dataType": "Boolean",
+                      "defaultValue": false,
+                      "name": "active",
+                      "tagType": "AtomicTag",
+                      "value": false,
+                      "valueSource": "memory"
+                    },
+                    {
+                      "dataType": "Int4",
+                      "defaultValue": 0,
+                      "name": "fleetPostNumber",
+                      "tagType": "AtomicTag",
+                      "value": 0,
+                      "valueSource": "memory"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
